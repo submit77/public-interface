@@ -1,0 +1,29 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@layouts/BaseLayout.astro";
+
+const entries = (await getCollection("writing", (entry) => !entry.data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<BaseLayout title="Writing" description="Public writing generated from the typed collection.">
+  <header class="page-head">
+    <p class="kicker">Collection</p>
+    <h1>Writing</h1>
+    <p>Every entry also has a generated plain-Markdown representation.</p>
+  </header>
+  <div class="rows">
+    {
+      entries.map((entry) => (
+        <a href={`/writing/${entry.id}/`}>
+          <time datetime={entry.data.date.toISOString()}>
+            {entry.data.date.toISOString().slice(0, 10)}
+          </time>
+          <strong>{entry.data.title}</strong>
+          <span>{entry.data.type}</span>
+        </a>
+      ))
+    }
+  </div>
+</BaseLayout>

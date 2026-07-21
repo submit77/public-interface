@@ -1,0 +1,18 @@
+---
+import { SITE } from "@data/site";
+
+const navigation = [
+  ["Home", "/"],
+  ["Writing", "/writing/"],
+  ["Evidence", "/evidence/"],
+  ["Interface", "/public-interface/"],
+  ["Architecture", "/architecture/"],
+];
+---
+
+<header class="topbar">
+  <a class="wordmark" href="/">{SITE.name}</a>
+  <nav aria-label="Primary">
+    {navigation.map(([label, href]) => <a href={href}>{label}</a>)}
+  </nav>
+</header>

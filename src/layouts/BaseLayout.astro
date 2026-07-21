@@ -1,0 +1,45 @@
+---
+import "@fontsource-variable/source-serif-4";
+import "@fontsource-variable/public-sans";
+import "@fontsource-variable/jetbrains-mono";
+import "@styles/tokens.css";
+import "@styles/global.css";
+import "@styles/site.css";
+import SEO from "@components/SEO.astro";
+import TopBar from "@components/TopBar.astro";
+import Footer from "@components/Footer.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: "website" | "article";
+  published?: Date;
+  modified?: Date;
+  schemaType?: "WebPage" | "TechArticle";
+  version?: string;
+  markdownAlternate?: string;
+  wide?: boolean;
+}
+
+const { wide = false, ...seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="Writing" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <SEO {...seo} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <TopBar />
+    <main id="main" class:list={[{ wide }]}>
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

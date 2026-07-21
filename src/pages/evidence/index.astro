@@ -1,0 +1,32 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@layouts/BaseLayout.astro";
+
+const entries = (await getCollection("evidence", (entry) => !entry.data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<BaseLayout title="Evidence" description="Dated claims and public sources.">
+  <header class="page-head">
+    <p class="kicker">Receipts</p>
+    <h1>Evidence</h1>
+    <p>
+      A synthetic collection demonstrating how claims can remain attached to inspectable sources.
+    </p>
+  </header>
+  <div class="evidence-list">
+    {
+      entries.map((entry) => (
+        <article>
+          <time datetime={entry.data.date.toISOString()}>
+            {entry.data.date.toISOString().slice(0, 10)}
+          </time>
+          <h2>{entry.data.title}</h2>
+          <p>{entry.data.summary}</p>
+          {entry.data.source && <a href={entry.data.source}>Inspect source ↗</a>}
+        </article>
+      ))
+    }
+  </div>
+</BaseLayout>

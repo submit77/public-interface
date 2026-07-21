@@ -1,0 +1,82 @@
+---
+import { getEntry, render } from "astro:content";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { ARCHITECTURE } from "@data/architecture";
+
+const page = await getEntry("pages", "architecture");
+if (!page) throw new Error("Missing Architecture content");
+const { Content } = await render(page);
+---
+
+<BaseLayout
+  wide
+  title={page.data.title}
+  description={page.data.intro}
+  schemaType="TechArticle"
+  modified={new Date(`${ARCHITECTURE.updated}T00:00:00Z`)}
+  version={ARCHITECTURE.version}
+  markdownAlternate="/architecture.md"
+>
+  <header class="page-head">
+    <p class="kicker">Always-current implementation record</p>
+    <h1>{page.data.title}</h1>
+    <p>{page.data.intro}</p>
+  </header>
+  <dl class="release">
+    <div><dt>Version</dt><dd>{ARCHITECTURE.version}</dd></div>
+    <div><dt>Status</dt><dd>{ARCHITECTURE.status}</dd></div>
+    <div><dt>Updated</dt><dd>{ARCHITECTURE.updated}</dd></div>
+    <div><dt>Verified</dt><dd>{ARCHITECTURE.verifiedAt}</dd></div>
+  </dl>
+  <div class="prose"><Content /></div>
+  <section class="section">
+    <div class="section-head"><h2>Implementation</h2><span>Source to deployed reality</span></div>
+    <div class="system-table">
+      {
+        ARCHITECTURE.layers.map(([layer, implementation, property]) => (
+          <article>
+            <>
+              <strong>{layer}</strong>
+              <span>{implementation}</span>
+              <span>{property}</span>
+            </>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-head">
+      <h2>Measurement structure</h2><span>Synthetic fixture values</span>
+    </div>
+    <div class="metric-grid">
+      {
+        ARCHITECTURE.metrics.map((metric) => (
+          <article>
+            <span>
+              {metric.kind} · {metric.status}
+            </span>
+            <h3>{metric.measure}</h3>
+            <strong>{metric.actual}</strong>
+            <p>Target: {metric.target}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-head"><h2>Changes</h2><span>Curated release record</span></div>
+    <div class="change-list">
+      {
+        ARCHITECTURE.changes.map((item) => (
+          <article>
+            <>
+              <time>{item.date}</time>
+              <p>{item.change}</p>
+            </>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

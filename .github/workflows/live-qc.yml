@@ -1,0 +1,24 @@
+name: Live QC
+
+on:
+  schedule:
+    - cron: "0 14 * * 1"
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: Deployed origin to verify
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  qc:
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.PUBLIC_INTERFACE_BASE_URL != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/live-qc.mjs "${{ inputs.base_url || vars.PUBLIC_INTERFACE_BASE_URL }}"

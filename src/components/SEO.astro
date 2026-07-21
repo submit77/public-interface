@@ -1,0 +1,97 @@
+---
+import { SITE } from "@data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  type?: "website" | "article";
+  published?: Date;
+  modified?: Date;
+  schemaType?: "WebPage" | "TechArticle";
+  version?: string;
+  markdownAlternate?: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  type = "website",
+  published,
+  modified,
+  schemaType,
+  version,
+  markdownAlternate,
+} = Astro.props;
+
+const pageTitle = title ? SITE.titleTemplate.replace("%s", title) : SITE.title;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const author = { "@type": "Organization", name: SITE.author, url: SITE.url };
+const segments = Astro.url.pathname.split("/").filter(Boolean);
+const breadcrumbs = title
+  ? {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${SITE.url}/` },
+        ...segments.map((segment, index) => ({
+          "@type": "ListItem",
+          position: index + 2,
+          name: index === segments.length - 1 ? title : segment,
+          item: new URL(`/${segments.slice(0, index + 1).join("/")}/`, SITE.url).href,
+        })),
+      ],
+    }
+  : null;
+const article =
+  type === "article" && published
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: title,
+        description,
+        url: canonical,
+        mainEntityOfPage: canonical,
+        author,
+        publisher: author,
+        datePublished: published.toISOString(),
+        dateModified: (modified ?? published).toISOString(),
+        inLanguage: "en",
+      }
+    : null;
+const page = schemaType
+  ? {
+      "@context": "https://schema.org",
+      "@type": schemaType,
+      name: pageTitle,
+      ...(schemaType === "TechArticle" ? { headline: title } : {}),
+      description,
+      url: canonical,
+      mainEntityOfPage: canonical,
+      author,
+      publisher: author,
+      ...(modified ? { dateModified: modified.toISOString() } : {}),
+      ...(version ? { version } : {}),
+    }
+  : null;
+---
+
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{
+  markdownAlternate && (
+    <link rel="alternate" type="text/markdown" href={new URL(markdownAlternate, SITE.url).href} />
+  )
+}
+<meta property="og:type" content={type} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={SITE.name} />
+{
+  breadcrumbs && (
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(breadcrumbs)} />
+  )
+}
+{article && <script type="application/ld+json" is:inline set:html={JSON.stringify(article)} />}
+{page && <script type="application/ld+json" is:inline set:html={JSON.stringify(page)} />}

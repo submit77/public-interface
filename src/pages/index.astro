@@ -1,0 +1,51 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import BaseLayout from "@layouts/BaseLayout.astro";
+
+const page = await getEntry("pages", "home");
+if (!page) throw new Error("Missing home page content");
+const { Content } = await render(page);
+const writing = (await getCollection("writing", (entry) => !entry.data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+---
+
+<BaseLayout title={page.data.title} description={page.data.intro}>
+  <header class="hero">
+    <p class="kicker">Reference implementation</p>
+    <h1>{page.data.title}</h1>
+    <p>{page.data.intro}</p>
+  </header>
+  <div class="prose"><Content /></div>
+  <section class="section">
+    <div class="section-head"><h2>Current interfaces</h2><span>Public and inspectable</span></div>
+    <div class="card-grid">
+      <a href="/public-interface/"
+        ><strong>Public Interface</strong><span>Definition and trust boundary</span></a
+      >
+      <a href="/architecture/"
+        ><strong>Architecture</strong><span>Implementation and verification</span></a
+      >
+      <a href="/llms.txt"><strong>Machine index</strong><span>Plain-text orientation</span></a>
+      <a href="/capabilities.json"
+        ><strong>Capability manifest</strong><span>Structured current state</span></a
+      >
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-head"><h2>Writing</h2><a href="/writing/">All writing</a></div>
+    <div class="rows">
+      {
+        writing.slice(0, 3).map((entry) => (
+          <a href={`/writing/${entry.id}/`}>
+            <time datetime={entry.data.date.toISOString()}>
+              {entry.data.date.toISOString().slice(0, 10)}
+            </time>
+            <strong>{entry.data.title}</strong>
+            <span>{entry.data.type}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

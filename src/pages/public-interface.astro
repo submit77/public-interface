@@ -1,0 +1,50 @@
+---
+import { getEntry, render } from "astro:content";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import { PUBLIC_INTERFACE } from "@data/public-interface";
+
+const page = await getEntry("pages", "public-interface");
+if (!page) throw new Error("Missing Public Interface content");
+const { Content } = await render(page);
+---
+
+<BaseLayout
+  wide
+  title={page.data.title}
+  description={page.data.intro}
+  schemaType="WebPage"
+  modified={new Date("2026-07-21T00:00:00Z")}
+  markdownAlternate="/public-interface.md"
+>
+  <header class="page-head">
+    <p class="kicker">Definition · current contract</p>
+    <h1>{page.data.title}</h1>
+    <p>{PUBLIC_INTERFACE.definition}</p>
+  </header>
+  <div class="boundary">
+    <span>{PUBLIC_INTERFACE.stage}</span>
+    <p>{PUBLIC_INTERFACE.trustBoundary}</p>
+  </div>
+  <div class="prose"><Content /></div>
+  <section class="section">
+    <div class="section-head">
+      <h2>Deployed capabilities</h2><span>Current, not aspirational</span>
+    </div>
+    <div class="interface-list">
+      {
+        PUBLIC_INTERFACE.capabilities.map((capability) => (
+          <article>
+            <div>
+              <>
+                <h3>{capability.name}</h3>
+                <code>{capability.route}</code>
+              </>
+            </div>
+            <span>{capability.mediaType}</span>
+            <p>{capability.use}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
